@@ -1,0 +1,76 @@
+###
+### Get Token for Testing
+###
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "user"
+}
+
+> {%
+    client.global.set("token", response.body.token);
+%}
+
+###
+### Register a New User
+###
+POST http://localhost:3000/users/register
+Content-Type: application/json
+
+{
+  "username": "newUser",
+  "email": "newuser@example.com",
+  "password": "securePassword"
+}
+
+> {%
+    client.assert(response.status === 201, "User registration failed");
+    client.assert(response.body.message === 'User registered successfully', "Unexpected response message");
+%}
+
+###
+### Get User By Token
+###
+GET http://localhost:3000/users/token
+Authorization: Bearer {{token}}
+
+> {%
+    client.assert(response.status === 200, "Token validation failed");
+    client.assert(response.body.username == "user", "Username should be present in response");
+%}
+
+###
+### Get All Users
+###
+GET http://localhost:3000/users
+Authorization: Bearer {{token}}
+
+> {%
+    client.assert(response.status === 200, "Failed to retrieve users");
+    client.assert(Array.isArray(response.body), "Expected an array of users");
+    client.assert(response.body.length > 0, "Expected at least one user");
+%}
+
+###
+### Get User By ID
+###
+GET http://localhost:3000/users/1
+Authorization: Bearer {{token}}
+
+> {%
+    client.assert(response.status === 200, "Failed to retrieve user by ID");
+    client.assert(response.body.id == 1, "Expected user ID to be 1");
+%}
+
+###
+### Get Bids of the User
+###
+GET http://localhost:3000/users/bids/me
+Authorization: Bearer {{token}}
+
+> {%
+    client.assert(response.status === 200, "Failed to retrieve user bids");
+    client.assert(Array.isArray(response.body), "Expected an array of bids");
+%}

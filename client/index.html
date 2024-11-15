@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main header</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="header-left">
+        <h1><a href="/">Duck bids</a></h1>
+        <p class="subtitle">Make you life better and find a duck of your dream</p>
+      </div>
+        <div class="header-right">
+          <a id='loginHeader' href="/login">Login</a>
+        </div>
+      <script>
+        if(localStorage.getItem('token')){
+          const profile = document.createElement('a');
+          profile.id = 'profile';
+          profile.textContent = 'Profile';
+          profile.href = '/user';
+          const headerRightDiv = document.querySelector('.header-right');
+          headerRightDiv.appendChild(profile);
+          document.getElementById('loginHeader').innerText= 'Logout'
+        } else if(!localStorage.getItem('token')) {
+          document.getElementById('loginHeader').innerText= 'Login'
+          document.getElementById('profile').remove();
+        }
+        document.getElementById('loginHeader').addEventListener('click', (event) => {
+          const token = localStorage.getItem('token');
+          if (token) {
+            event.preventDefault();
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+            document.getElementById('loginHeader').innerText= 'Login'
+          }
+        });
+      </script>
+    </header>
+
+    <div id="app"></div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+
+</html>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2vw;
+    background-color: #ef821e;
+    box-shadow: 0 0.2vw 0.5vw rgba(0, 0, 0, 0.1);
+    max-height: 7.1vw;
+  }
+
+  .header-left h1 {
+    font-size: 2vw;
+  }
+
+  .header-left a {
+    text-decoration: none;
+    color: #f0f0f0;
+  }
+
+  .subtitle {
+    font-size: 1.2vw;
+    color: #f0f0f0;
+  }
+
+  .header-right a {
+    margin: 1vw;
+    font-size: 1.5vw;
+    text-decoration: none;
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+  }
+
+</style>

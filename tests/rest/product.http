@@ -1,0 +1,155 @@
+###
+### Get Token for Testing
+###
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "user"
+}
+
+> {%
+    client.global.set("token", response.body.token);
+%}
+
+###
+### Get all products
+###
+GET http://localhost:3000/products
+Content-Type: application/json
+
+> {%
+client.test("Products endpoint works and returns at least 1 product", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+    client.assert(Array.isArray(response.body), "Response is not an array");
+    client.assert(response.body.length !== 0, "Expected a filled array");
+});
+%}
+
+###
+### Get product by ID
+###
+GET http://localhost:3000/products/1
+Content-Type: application/json
+
+> {%
+client.test("Get product by ID works", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+    client.assert(response.body.id == 1, "Product ID does not match");
+});
+%}
+
+###
+### Get product by invalid ID (404 expected)
+###
+GET http://localhost:3000/products/999
+Content-Type: application/json
+
+> {%
+client.test("Get product by invalid ID returns 404", function() {
+    client.assert(response.status === 404, "Response status is not 404");
+    client.assert(response.body.message === "Product not found", "Expected 'Product not found' message");
+});
+%}
+
+###
+### Get bids for a product by ID
+###
+GET http://localhost:3000/products/1/bids
+Content-Type: application/json
+
+> {%
+client.test("Get bids for a product works", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+    client.assert(Array.isArray(response.body), "Response is not an array");
+});
+%}
+
+###
+### Post a new bid on a product (requires auth)
+###
+POST http://localhost:3000/products/1/bids
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 1,
+  "amount": 25
+}
+
+> {%
+    client.test("Post new bid on product works", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        client.assert(response.body.amount === 25, "Bid amount does not match");
+    });
+%}
+
+###
+### Add a new product (requires auth)
+###
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "picture": "Example picture",
+  "name": "Test",
+  "description": "Test",
+  "price": 222,
+  "person": "Test",
+  "isPet": true,
+  "ends": "13-01-2029"
+}
+
+> {%
+    client.test("Add new product works", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        client.assert(response.body.name === "Test", "Product name does not match");
+        client.assert(response.body.price === 222, "Product price does not match");
+    });
+%}
+
+###
+### Update a product by ID (requires auth)
+###
+PATCH http://localhost:3000/products/1
+Content-Type: application/json
+
+{
+  "name": "Test",
+  "description": "Test",
+  "price": 350
+}
+
+> {%
+    client.test("Update product works", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.assert(response.body.name === "Test", "Product name does not match");
+        client.assert(response.body.description === "Test", "Product name does not match");
+        client.assert(response.body.price === 350, "Product price does not match");
+    });
+%}
+
+###
+### Delete all bids for a product (requires auth)
+###
+DELETE http://localhost:3000/products/1/bids
+
+> {%
+    client.test("Delete all bids for a product works", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.assert(response.body.message === "Bids for product ID 1 have been deleted.", "Message does not match");
+    });
+%}
+
+###
+### Delete a product by ID (requires auth)
+###
+DELETE http://localhost:3000/products/1
+
+> {%
+    client.test("Delete product works", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.assert(response.body.message === "Product deleted successfully.", "Message does not match");
+    });
+%}

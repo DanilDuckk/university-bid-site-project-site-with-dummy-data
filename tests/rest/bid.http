@@ -1,0 +1,33 @@
+###
+### Get All Bids
+###
+GET http://localhost:3000/bids
+Content-Type: application/json
+
+> {%
+    client.assert(response.status === 200, "Failed to retrieve all bids");
+    client.assert(Array.isArray(response.body), "Expected an array of bids");
+    client.assert(response.body.length > 0, "Expected at least one bid");
+%}
+
+###
+### Get Bid By ID
+###
+GET http://localhost:3000/bids/1
+Content-Type: application/json
+
+> {%
+    client.assert(response.status === 200, "Failed to retrieve bid by ID");
+    client.assert(response.body.id == 1, "Expected bid ID to be 1");
+%}
+
+###
+### Get Bid By Non-Existent ID
+###
+GET http://localhost:3000/bids/999
+Content-Type: application/json
+
+> {%
+    client.assert(response.status === 404, "Expected 404 for non-existent bid");
+    client.assert(response.body.message === 'Product not found', "Unexpected message for non-existent bid");
+%}
